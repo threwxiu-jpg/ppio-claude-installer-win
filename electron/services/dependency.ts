@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
-import { runCommand } from './shell'
+import { runCommand, runCommandWithProgress } from './shell'
 
 // Common paths where npm.cmd lives on Windows
 const COMMON_NPM_PATHS = [
@@ -94,15 +94,19 @@ export async function checkDependency(id: string): Promise<{ installed: boolean;
   }
 }
 
-export async function installDependency(id: string, useMirror: boolean): Promise<{ success: boolean; error?: string }> {
+export async function installDependency(id: string, useMirror: boolean, onProgress?: (line: string) => void): Promise<{ success: boolean; error?: string }> {
+  const run = onProgress
+    ? (cmd: string) => runCommandWithProgress(cmd, onProgress)
+    : runCommand
+
   switch (id) {
     case 'git': {
-      const result = await runCommand('winget install Git.Git --accept-source-agreements --accept-package-agreements')
+      const result = await run('winget install Git.Git --accept-source-agreements --accept-package-agreements')
       if (result.exitCode === 0) return { success: true }
       return { success: false, error: result.error || 'Git 安装失败。请手动从 https://git-scm.com/downloads/win 下载安装' }
     }
     case 'nodejs': {
-      const result = await runCommand('winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements')
+      const result = await run('winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements')
       if (result.exitCode === 0) return { success: true }
       return { success: false, error: result.error || 'Node.js 安装失败。请手动从 https://nodejs.org 下载安装' }
     }
@@ -135,7 +139,7 @@ export async function installDependency(id: string, useMirror: boolean): Promise
       const registryFlag = useMirror
         ? ' --registry https://registry.npmmirror.com'
         : ''
-      const result = await runCommand(`${npmCmd} install -g @anthropic-ai/claude-code${registryFlag}`)
+      const result = await run(`${npmCmd} install -g @anthropic-ai/claude-code${registryFlag}`)
       if (result.exitCode === 0) return { success: true }
 
       // Check for common errors

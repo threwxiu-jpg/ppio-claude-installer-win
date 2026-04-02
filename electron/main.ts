@@ -42,7 +42,9 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('install-dependency', async (_e, id: string, useMirror: boolean) => {
-    return installDependency(id, useMirror)
+    return installDependency(id, useMirror, (line: string) => {
+      win?.webContents.send('install-progress', { id, line })
+    })
   })
 
   ipcMain.handle('check-network-speed', async () => {

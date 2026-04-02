@@ -11,4 +11,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   runDiagnostics: (apiKey: string, modelID: string) => ipcRenderer.invoke('run-diagnostics', apiKey, modelID),
   openPowerShell: () => ipcRenderer.invoke('open-powershell'),
   quitApp: () => ipcRenderer.invoke('quit-app'),
+  onInstallProgress: (cb: (data: { id: string; line: string }) => void) => {
+    const handler = (_e: any, data: any) => cb(data)
+    ipcRenderer.on('install-progress', handler)
+    return () => { ipcRenderer.removeListener('install-progress', handler) }
+  },
 })

@@ -19,6 +19,57 @@ const EXTRA_PATHS = [
   'C:\\Program Files (x86)\\Git\\bin',
 ]
 
+export function runCommandWithProgress(
+  command: string,
+  onData: (line: string) => void,
+  timeoutMs = 300000,
+): Promise<ShellResult> {
+  return new Promise((resolve) => {
+    const env = { ...process.env }
+    const currentPath = env.PATH || env.Path || ''
+    const missing = EXTRA_PATHS.filter(p => !currentPath.includes(p))
+    if (missing.length > 0) {
+      env.PATH = missing.join(';') + ';' + currentPath
+    }
+
+    const proc = spawn('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command], {
+      windowsHide: true,
+      env,
+    })
+
+    let stdout = ''
+    let stderr = ''
+
+    proc.stdout.on('data', (data) => {
+      const text = data.toString()
+      stdout += text
+      const line = text.trim()
+      if (line) onData(line)
+    })
+    proc.stderr.on('data', (data) => {
+      const text = data.toString()
+      stderr += text
+      const line = text.trim()
+      if (line) onData(line)
+    })
+
+    const timer = setTimeout(() => {
+      proc.kill()
+      resolve({ exitCode: 1, output: stdout.trim(), error: '安装超时（5分钟）' })
+    }, timeoutMs)
+
+    proc.on('close', (code) => {
+      clearTimeout(timer)
+      resolve({ exitCode: code ?? 1, output: stdout.trim(), error: stderr.trim() })
+    })
+
+    proc.on('error', (err) => {
+      clearTimeout(timer)
+      resolve({ exitCode: 1, output: '', error: err.message })
+    })
+  })
+}
+
 export function runCommand(command: string): Promise<ShellResult> {
   return new Promise((resolve) => {
     const env = { ...process.env }

@@ -120,6 +120,7 @@ declare global {
       runDiagnostics: (apiKey: string, modelID: string) => Promise<DiagnosticResult[]>
       openPowerShell: () => Promise<boolean>
       quitApp: () => Promise<void>
+      onInstallProgress: (cb: (data: { id: string; line: string }) => void) => () => void
     }
   }
 }
