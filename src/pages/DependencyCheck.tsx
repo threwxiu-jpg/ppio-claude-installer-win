@@ -9,7 +9,6 @@ export function DependencyCheck() {
   const dispatch = useDispatch()
 
   const allReady = state.dependencies.every((d) => d.status === 'installed')
-  const hasInstallNeeded = state.dependencies.some((d) => d.status === 'missing' || d.status === 'failed')
   const isChecking = state.dependencies.some((d) => d.status === 'checking')
 
   useEffect(() => {
@@ -149,12 +148,7 @@ export function DependencyCheck() {
             </button>
           )}
           {allReady && (
-            <button className="btn-primary" onClick={() => {
-              if (hasInstallNeeded) {
-                dispatch({ type: 'UPDATE', payload: { needsInstall: true } })
-              }
-              dispatch({ type: 'GO_NEXT' })
-            }}>
+            <button className="btn-primary" onClick={() => dispatch({ type: 'GO_NEXT' })}>
               继续
             </button>
           )}

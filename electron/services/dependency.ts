@@ -100,10 +100,10 @@ export async function installDependency(id: string, useMirror: boolean): Promise
       const npmPath = await findNpm()
       if (npmPath) npmCmd = `& "${npmPath}"`
 
-      const mirrorCmd = useMirror
-        ? `${npmCmd} config set registry https://registry.npmmirror.com; `
+      const registryFlag = useMirror
+        ? ' --registry https://registry.npmmirror.com'
         : ''
-      const result = await runCommand(`${mirrorCmd}${npmCmd} install -g @anthropic-ai/claude-code`)
+      const result = await runCommand(`${npmCmd} install -g @anthropic-ai/claude-code${registryFlag}`)
       if (result.exitCode === 0) return { success: true }
 
       // Check for common errors

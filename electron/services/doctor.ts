@@ -60,7 +60,7 @@ export async function runDiagnostics(apiKey: string, modelID: string): Promise<D
 
     // OPTIONAL: ANTHROPIC_MODEL
     const modelMatch = content.match(/ANTHROPIC_MODEL=(.+)/)
-    if (modelMatch && modelMatch[1].startsWith('pa/')) {
+    if (modelMatch && modelMatch[1].includes('/')) {
       results.push({ name: 'ANTHROPIC_MODEL', level: 'optional', status: 'pass', message: modelMatch[1] })
     } else {
       results.push({ name: 'ANTHROPIC_MODEL', level: 'optional', status: 'warn', message: modelMatch?.[1] || 'Not set' })
@@ -73,12 +73,12 @@ export async function runDiagnostics(apiKey: string, modelID: string): Promise<D
   if (fs.existsSync(settingsFile)) {
     try {
       const settings = JSON.parse(fs.readFileSync(settingsFile, 'utf-8'))
-      if (settings.model && String(settings.model).startsWith('pa/')) {
+      if (settings.model && String(settings.model).includes('/')) {
         results.push({ name: 'settings.json model', level: 'critical', status: 'pass', message: settings.model })
       } else {
-        results.push({ name: 'settings.json model', level: 'critical', status: 'fail', message: 'Missing or no pa/ prefix' })
+        results.push({ name: 'settings.json model', level: 'critical', status: 'fail', message: 'Missing or invalid model ID' })
       }
-      if (settings.smallModel && String(settings.smallModel).startsWith('pa/')) {
+      if (settings.smallModel && String(settings.smallModel).includes('/')) {
         results.push({ name: 'settings.json smallModel', level: 'optional', status: 'pass', message: settings.smallModel })
       } else {
         results.push({ name: 'settings.json smallModel', level: 'optional', status: 'warn', message: 'Not set' })

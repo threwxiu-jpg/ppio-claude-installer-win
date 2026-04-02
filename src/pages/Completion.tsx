@@ -21,8 +21,12 @@ export function Completion() {
 
   async function runDiag() {
     setDiagStatus('running')
-    const results = await window.electronAPI.runDiagnostics(state.apiKey, effectiveModelId)
-    setDiagResults(results)
+    try {
+      const results = await window.electronAPI.runDiagnostics(state.apiKey, effectiveModelId)
+      setDiagResults(results)
+    } catch (err: any) {
+      setDiagResults([{ name: '诊断失败', level: 'critical', status: 'fail', message: err.message || '未知错误' }])
+    }
     setDiagStatus('done')
   }
 

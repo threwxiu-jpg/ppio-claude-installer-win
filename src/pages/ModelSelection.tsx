@@ -36,7 +36,7 @@ export function ModelSelection() {
                   background: selected ? 'var(--color-primary)' : 'transparent',
                   transition: 'background 0.15s',
                 }} />
-                <div style={{ padding: '6px 10', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <div style={{ padding: '6px 10px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 13 }}>{model.displayName}</span>
                   <span style={{ fontSize: 10, color: 'var(--color-tertiary)', fontFamily: 'var(--font-mono)' }}>{model.id}</span>
                 </div>
