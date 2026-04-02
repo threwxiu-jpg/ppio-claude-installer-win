@@ -49,6 +49,17 @@ export async function checkDependency(id: string): Promise<{ installed: boolean;
     case 'claude-cli': {
       const result = await runCommand('claude --version')
       if (result.exitCode === 0) return { installed: true, version: result.output.trim() }
+      // Try known absolute paths
+      const claudePaths = [
+        path.join(os.homedir(), 'AppData', 'Roaming', 'npm', 'claude.cmd'),
+        path.join(os.homedir(), '.npm-global', 'claude.cmd'),
+      ]
+      for (const p of claudePaths) {
+        if (fs.existsSync(p)) {
+          const r2 = await runCommand(`& "${p}" --version`)
+          if (r2.exitCode === 0) return { installed: true, version: r2.output.trim() }
+        }
+      }
       return { installed: false }
     }
     default:
