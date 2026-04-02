@@ -69,7 +69,18 @@ app.whenReady().then(() => {
 
   ipcMain.handle('open-powershell', async () => {
     const { exec } = require('child_process')
-    exec('start powershell.exe -ExecutionPolicy Bypass -NoExit -Command "Write-Host \'Claude Code 环境已加载，输入 claude 开始使用\' -ForegroundColor Green"')
+    const os = require('os')
+    const envFile = require('path').join(os.homedir(), '.claude', '.env').replace(/\\/g, '\\\\')
+    // Open PowerShell that loads .env vars into process, then shows welcome
+    const psCmd = [
+      `foreach($line in Get-Content '${envFile}') {`,
+      `  if($line -match '^([^#=]+)=(.*)$') {`,
+      `    [Environment]::SetEnvironmentVariable($matches[1],$matches[2],'Process')`,
+      `  }`,
+      `}`,
+      `Write-Host 'Claude Code 环境已加载，输入 claude 开始使用' -ForegroundColor Green`,
+    ].join('; ')
+    exec(`start powershell.exe -ExecutionPolicy Bypass -NoExit -Command "${psCmd.replace(/"/g, '\\"')}"`)
     return true
   })
 

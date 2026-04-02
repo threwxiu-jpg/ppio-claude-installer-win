@@ -44,6 +44,10 @@ export async function writeConfig(apiKey: string, modelID: string): Promise<{ su
     for (const [key, value] of Object.entries(envVars)) {
       await runCommand(`[Environment]::SetEnvironmentVariable('${key}', '${value}', 'User')`)
     }
+    // Broadcast WM_SETTINGCHANGE so new processes pick up the env vars immediately
+    await runCommand(
+      `Add-Type -TypeDefinition @"\nusing System; using System.Runtime.InteropServices;\npublic class WinEnv {\n  [DllImport("user32.dll", CharSet=CharSet.Auto)] public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, UIntPtr wParam, string lParam, uint fuFlags, uint uTimeout, out UIntPtr lpdwResult);\n}\n"@\n$r=[UIntPtr]::Zero; [WinEnv]::SendMessageTimeout([IntPtr]0xFFFF,0x001A,[UIntPtr]::Zero,"Environment",2,5000,[ref]$r)`
+    )
 
     // Always write settings.json with model config (merge with existing)
     let settings: Record<string, any> = {}
