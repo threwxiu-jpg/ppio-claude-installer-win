@@ -10,8 +10,8 @@ export type Step =
 
 export const STEPS: Step[] = [
   'welcome',
-  'dependencyCheck',
   'networkSelection',
+  'dependencyCheck',
   'apiKeyInput',
   'modelSelection',
   'validation',
