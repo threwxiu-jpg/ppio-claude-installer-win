@@ -73,9 +73,9 @@ export function NetworkSelection() {
             <button className="btn-secondary" onClick={() => dispatch({ type: 'GO_BACK' })}>上一步</button>
             <button className="btn-primary" onClick={() => {
               dispatch({ type: 'UPDATE', payload: { networkChecked: true } })
-              dispatch({ type: 'GO_BACK' })
+              dispatch({ type: 'GO_NEXT' })
             }}>
-              开始安装
+              继续
             </button>
           </div>
         ) : undefined
