@@ -28,6 +28,7 @@ export interface DependencyItem {
   name: string
   status: DependencyStatus
   version?: string
+  error?: string
 }
 
 export interface PPIOModel {

@@ -1,4 +1,6 @@
 import { spawn } from 'child_process'
+import path from 'path'
+import os from 'os'
 
 export interface ShellResult {
   exitCode: number
@@ -6,10 +8,26 @@ export interface ShellResult {
   error: string
 }
 
+const EXTRA_PATHS = [
+  path.join(os.homedir(), 'AppData', 'Roaming', 'npm'),
+  'C:\\Program Files\\nodejs',
+  'C:\\Program Files (x86)\\nodejs',
+  path.join(os.homedir(), '.npm-global'),
+  path.join(os.homedir(), '.npm-global', 'bin'),
+]
+
 export function runCommand(command: string): Promise<ShellResult> {
   return new Promise((resolve) => {
+    const env = { ...process.env }
+    const currentPath = env.PATH || env.Path || ''
+    const missing = EXTRA_PATHS.filter(p => !currentPath.includes(p))
+    if (missing.length > 0) {
+      env.PATH = missing.join(';') + ';' + currentPath
+    }
+
     const proc = spawn('powershell.exe', ['-NoProfile', '-Command', command], {
       windowsHide: true,
+      env,
     })
 
     let stdout = ''
