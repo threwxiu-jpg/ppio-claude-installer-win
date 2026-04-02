@@ -85,6 +85,7 @@ export interface AppState {
 export const initialState: AppState = {
   step: 'welcome',
   dependencies: [
+    { id: 'git', name: 'Git (含 Git Bash)', status: 'unchecked' },
     { id: 'nodejs', name: 'Node.js (≥18)', status: 'unchecked' },
     { id: 'npm', name: 'npm', status: 'unchecked' },
     { id: 'claude-cli', name: 'Claude Code CLI', status: 'unchecked' },

@@ -23,8 +23,35 @@ async function findNpm(): Promise<string | null> {
   return null
 }
 
+const COMMON_GIT_PATHS = [
+  'C:\\Program Files\\Git\\bin\\bash.exe',
+  'C:\\Program Files (x86)\\Git\\bin\\bash.exe',
+  path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'Git', 'bin', 'bash.exe'),
+]
+
 export async function checkDependency(id: string): Promise<{ installed: boolean; version?: string }> {
   switch (id) {
+    case 'git': {
+      const result = await runCommand('git --version')
+      if (result.exitCode === 0) {
+        const ver = result.output.replace('git version ', '').trim()
+        // Also verify bash.exe exists
+        const bashCheck = await runCommand('where bash.exe 2>$null')
+        if (bashCheck.exitCode === 0) return { installed: true, version: ver }
+        // Check common paths
+        for (const p of COMMON_GIT_PATHS) {
+          if (fs.existsSync(p)) return { installed: true, version: ver }
+        }
+        return { installed: true, version: ver + ' (bash 未在 PATH)' }
+      }
+      // Check common paths
+      for (const p of COMMON_GIT_PATHS) {
+        if (fs.existsSync(p)) {
+          return { installed: true, version: 'Git Bash found' }
+        }
+      }
+      return { installed: false }
+    }
     case 'nodejs': {
       const result = await runCommand('node --version')
       if (result.exitCode === 0) {
@@ -69,6 +96,11 @@ export async function checkDependency(id: string): Promise<{ installed: boolean;
 
 export async function installDependency(id: string, useMirror: boolean): Promise<{ success: boolean; error?: string }> {
   switch (id) {
+    case 'git': {
+      const result = await runCommand('winget install Git.Git --accept-source-agreements --accept-package-agreements')
+      if (result.exitCode === 0) return { success: true }
+      return { success: false, error: result.error || 'Git 安装失败。请手动从 https://git-scm.com/downloads/win 下载安装' }
+    }
     case 'nodejs': {
       const result = await runCommand('winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements')
       if (result.exitCode === 0) return { success: true }

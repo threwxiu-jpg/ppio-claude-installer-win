@@ -17,6 +17,20 @@ export async function runDiagnostics(apiKey: string, modelID: string): Promise<D
   const envFile = path.join(claudeDir, '.env')
   const settingsFile = path.join(claudeDir, 'settings.json')
 
+  // 0. Git Bash — CRITICAL (Claude Code requires it on Windows)
+  const gitResult = await runCommand('where bash.exe 2>$null')
+  if (gitResult.exitCode === 0 && gitResult.output.trim()) {
+    results.push({ name: 'Git Bash', level: 'critical', status: 'pass', message: 'Found in PATH' })
+  } else {
+    const gitBashPaths = ['C:\\Program Files\\Git\\bin\\bash.exe', 'C:\\Program Files (x86)\\Git\\bin\\bash.exe']
+    const found = gitBashPaths.find(p => fs.existsSync(p))
+    if (found) {
+      results.push({ name: 'Git Bash', level: 'critical', status: 'warn', message: 'Found but not in PATH' })
+    } else {
+      results.push({ name: 'Git Bash', level: 'critical', status: 'fail', message: 'Not installed — required by Claude Code' })
+    }
+  }
+
   // 1. Claude CLI installed — CRITICAL
   const cliResult = await runCommand('where claude 2>$null')
   if (cliResult.exitCode === 0 && cliResult.output.trim()) {

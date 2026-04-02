@@ -14,6 +14,9 @@ const EXTRA_PATHS = [
   'C:\\Program Files (x86)\\nodejs',
   path.join(os.homedir(), '.npm-global'),
   path.join(os.homedir(), '.npm-global', 'bin'),
+  'C:\\Program Files\\Git\\bin',
+  'C:\\Program Files\\Git\\cmd',
+  'C:\\Program Files (x86)\\Git\\bin',
 ]
 
 export function runCommand(command: string): Promise<ShellResult> {
