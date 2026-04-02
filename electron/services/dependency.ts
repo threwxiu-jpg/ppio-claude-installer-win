@@ -12,7 +12,7 @@ const COMMON_NPM_PATHS = [
 
 async function findNpm(): Promise<string | null> {
   // Try PATH first (shell.ts already injects extra paths)
-  const result = await runCommand('where npm.cmd 2>$null')
+  const result = await runCommand('where.exe npm.cmd 2>$null')
   if (result.exitCode === 0 && result.output.trim()) {
     return result.output.trim().split('\n')[0].trim()
   }
@@ -36,7 +36,7 @@ export async function checkDependency(id: string): Promise<{ installed: boolean;
       if (result.exitCode === 0) {
         const ver = result.output.replace('git version ', '').trim()
         // Also verify bash.exe exists
-        const bashCheck = await runCommand('where bash.exe 2>$null')
+        const bashCheck = await runCommand('where.exe bash.exe 2>$null')
         if (bashCheck.exitCode === 0) return { installed: true, version: ver }
         // Check common paths
         for (const p of COMMON_GIT_PATHS) {
