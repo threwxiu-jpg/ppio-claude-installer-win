@@ -33,6 +33,18 @@ export async function writeConfig(apiKey: string, modelID: string): Promise<{ su
 
     fs.writeFileSync(ENV_FILE, envContent, 'utf-8')
 
+    // Write Windows user environment variables (persistent across sessions)
+    const envVars: Record<string, string> = {
+      ANTHROPIC_BASE_URL: 'https://api.ppio.com/anthropic',
+      ANTHROPIC_AUTH_TOKEN: apiKey,
+      ANTHROPIC_MODEL: modelID,
+      ANTHROPIC_SMALL_FAST_MODEL: modelID,
+      CLAUDE_CODE_SKIP_AUTH_LOGIN: '1',
+    }
+    for (const [key, value] of Object.entries(envVars)) {
+      await runCommand(`[Environment]::SetEnvironmentVariable('${key}', '${value}', 'User')`)
+    }
+
     // Always write settings.json with model config (merge with existing)
     let settings: Record<string, any> = {}
     if (fs.existsSync(SETTINGS_FILE)) {
