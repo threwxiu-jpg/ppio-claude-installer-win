@@ -67,7 +67,24 @@ app.whenReady().then(() => {
 
   ipcMain.handle('open-powershell', async () => {
     const { spawn } = require('child_process')
-    spawn('powershell.exe', [], { detached: true, stdio: 'ignore' }).unref()
+    const os = require('os')
+    const envFile = require('path').join(os.homedir(), '.claude', '.env')
+    // Load .env vars and inject into PowerShell environment
+    const env = { ...process.env }
+    try {
+      const fs = require('fs')
+      const content = fs.readFileSync(envFile, 'utf-8')
+      for (const line of content.split('\n')) {
+        const match = line.match(/^([^#=]+)=(.*)$/)
+        if (match) env[match[1].trim()] = match[2].trim()
+      }
+    } catch { /* .env may not exist yet */ }
+    // Add npm global path
+    const npmGlobal = require('path').join(os.homedir(), 'AppData', 'Roaming', 'npm')
+    env.PATH = npmGlobal + ';' + (env.PATH || env.Path || '')
+    spawn('powershell.exe', ['-ExecutionPolicy', 'Bypass', '-NoExit', '-Command',
+      `Write-Host 'Claude Code 环境已加载，输入 claude 开始使用' -ForegroundColor Green`
+    ], { detached: true, stdio: 'ignore', env }).unref()
     return true
   })
 

@@ -25,7 +25,7 @@ export function runCommand(command: string): Promise<ShellResult> {
       env.PATH = missing.join(';') + ';' + currentPath
     }
 
-    const proc = spawn('powershell.exe', ['-NoProfile', '-Command', command], {
+    const proc = spawn('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command], {
       windowsHide: true,
       env,
     })
