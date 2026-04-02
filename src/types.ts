@@ -53,6 +53,15 @@ export interface ConflictingExport {
   source: string
 }
 
+export interface DiagnosticResult {
+  name: string
+  level: 'critical' | 'optional'
+  status: 'pass' | 'fail' | 'warn'
+  message: string
+}
+
+export type DiagnosticStatus = 'idle' | 'running' | 'done'
+
 export interface AppState {
   step: Step
   dependencies: DependencyItem[]
@@ -106,6 +115,7 @@ declare global {
       validateAPI: (apiKey: string, modelID: string) => Promise<{ success: boolean; error?: string }>
       writeConfig: (apiKey: string, modelID: string) => Promise<{ success: boolean; error?: string }>
       detectConflicts: () => Promise<ConflictingExport[]>
+      runDiagnostics: (apiKey: string, modelID: string) => Promise<DiagnosticResult[]>
       openPowerShell: () => Promise<boolean>
       quitApp: () => Promise<void>
     }

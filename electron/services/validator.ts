@@ -14,7 +14,7 @@ export async function validateAPI(apiKey: string, modelID: string): Promise<{ su
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
         'Content-Length': Buffer.byteLength(body),
       },

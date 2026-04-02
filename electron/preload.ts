@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   validateAPI: (apiKey: string, modelID: string) => ipcRenderer.invoke('validate-api', apiKey, modelID),
   writeConfig: (apiKey: string, modelID: string) => ipcRenderer.invoke('write-config', apiKey, modelID),
   detectConflicts: () => ipcRenderer.invoke('detect-conflicts'),
+  runDiagnostics: (apiKey: string, modelID: string) => ipcRenderer.invoke('run-diagnostics', apiKey, modelID),
   openPowerShell: () => ipcRenderer.invoke('open-powershell'),
   quitApp: () => ipcRenderer.invoke('quit-app'),
 })

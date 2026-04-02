@@ -25,7 +25,7 @@ export async function writeConfig(apiKey: string, modelID: string): Promise<{ su
 
     const envContent = [
       `ANTHROPIC_BASE_URL=https://api.ppio.com/anthropic`,
-      `ANTHROPIC_API_KEY=${apiKey}`,
+      `ANTHROPIC_AUTH_TOKEN=${apiKey}`,
       `ANTHROPIC_MODEL=${modelID}`,
       `ANTHROPIC_SMALL_FAST_MODEL=${modelID}`,
       `CLAUDE_CODE_SKIP_AUTH_LOGIN=1`,
@@ -33,10 +33,17 @@ export async function writeConfig(apiKey: string, modelID: string): Promise<{ su
 
     fs.writeFileSync(ENV_FILE, envContent, 'utf-8')
 
-    // Only write settings.json if it doesn't exist
-    if (!fs.existsSync(SETTINGS_FILE)) {
-      fs.writeFileSync(SETTINGS_FILE, JSON.stringify({ skipDangerousModePermissionPrompt: true }, null, 2) + '\n', 'utf-8')
+    // Always write settings.json with model config (merge with existing)
+    let settings: Record<string, any> = {}
+    if (fs.existsSync(SETTINGS_FILE)) {
+      try {
+        settings = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf-8'))
+      } catch { /* overwrite if corrupt */ }
     }
+    settings.model = modelID
+    settings.smallModel = modelID
+    settings.skipDangerousModePermissionPrompt = true
+    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2) + '\n', 'utf-8')
 
     return { success: true }
   } catch (err: any) {

@@ -4,6 +4,7 @@ import { runCommand } from './services/shell'
 import { checkDependency, installDependency, checkNetworkSpeed } from './services/dependency'
 import { writeConfig, detectConflicts } from './services/config-writer'
 import { validateAPI } from './services/validator'
+import { runDiagnostics } from './services/doctor'
 
 let win: BrowserWindow | null
 
@@ -58,6 +59,10 @@ app.whenReady().then(() => {
 
   ipcMain.handle('detect-conflicts', async () => {
     return detectConflicts()
+  })
+
+  ipcMain.handle('run-diagnostics', async (_e, apiKey: string, modelID: string) => {
+    return runDiagnostics(apiKey, modelID)
   })
 
   ipcMain.handle('open-powershell', async () => {
